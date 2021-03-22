@@ -1,5 +1,6 @@
 """MNIST DataModule"""
 import argparse
+from typing import Type, cast
 
 from torch.utils.data import random_split
 from torchvision.datasets import MNIST as TorchMNIST
@@ -37,4 +38,4 @@ class MNIST(BaseDataModule):
 
 
 if __name__ == "__main__":
-    load_and_print_info(MNIST)
+    load_and_print_info(cast(Type[BaseDataModule], MNIST))
