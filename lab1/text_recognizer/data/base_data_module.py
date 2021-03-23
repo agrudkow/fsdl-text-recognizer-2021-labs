@@ -1,7 +1,8 @@
 """Base DataModule class."""
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple, Type, Union
 import argparse
+from argparse import _ArgumentGroup, ArgumentParser
 import os
 
 import pytorch_lightning as pl
@@ -37,18 +38,28 @@ class BaseDataModule(pl.LightningDataModule):
         return Path(__file__).resolve().parents[3] / "data"
 
     @staticmethod
-    def add_to_argparse(parser):
+    def add_to_argparse(parser: Union[_ArgumentGroup, ArgumentParser]):
         parser.add_argument(
-            "--batch_size", type=int, default=BATCH_SIZE, help="Number of examples to operate on per forward step."
+            "--batch_size",
+            type=int,
+            default=BATCH_SIZE,
+            help="Number of examples to operate on per forward step.",
         )
         parser.add_argument(
-            "--num_workers", type=int, default=NUM_WORKERS, help="Number of additional processes to load data."
+            "--num_workers",
+            type=int,
+            default=NUM_WORKERS,
+            help="Number of additional processes to load data.",
         )
         return parser
 
     def config(self):
         """Return important settings of the dataset, which will be passed to instantiate models."""
-        return {"input_dims": self.dims, "output_dims": self.output_dims, "mapping": self.mapping}
+        return {
+            "input_dims": self.dims,
+            "output_dims": self.output_dims,
+            "mapping": self.mapping,
+        }
 
     def prepare_data(self):
         """
@@ -66,13 +77,31 @@ class BaseDataModule(pl.LightningDataModule):
         self.data_test = None
 
     def train_dataloader(self):
-        return DataLoader(self.data_train, shuffle=True, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(
+            self.data_train,
+            shuffle=True,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            pin_memory=True,
+        )
 
     def val_dataloader(self):
-        return DataLoader(self.data_val, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(
+            self.data_val,
+            shuffle=False,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            pin_memory=True,
+        )
 
     def test_dataloader(self):
-        return DataLoader(self.data_test, shuffle=False, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(
+            self.data_test,
+            shuffle=False,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            pin_memory=True,
+        )
 
 
 def load_and_print_info(data_module_class: Type[BaseDataModule]) -> None:
@@ -96,5 +125,7 @@ def _download_raw_dataset(metadata: Dict, dl_dirname: Path) -> Path:
     print("Computing SHA-256...")
     sha256 = util.compute_sha256(filename)
     if sha256 != metadata["sha256"]:
-        raise ValueError("Downloaded data file SHA-256 does not match that listed in metadata document.")
+        raise ValueError(
+            "Downloaded data file SHA-256 does not match that listed in metadata document."
+        )
     return filename

@@ -6,9 +6,6 @@ data/interim
 # Logs
 training/logs
 
-# Editors
-.vscode
-
 # Node
 node_modules
 
